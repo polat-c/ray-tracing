@@ -1,0 +1,15 @@
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# VSCode
+.vscode/
+
+# Debug files
+*.dSYM/
+
+# Project Specific
+*.ppm
+src/main
+src/protocoll.txt
