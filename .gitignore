@@ -11,5 +11,7 @@
 
 # Project Specific
 *.ppm
-src/main
-src/protocoll.txt
+main
+protocoll.txt
+images
+outputs/*
