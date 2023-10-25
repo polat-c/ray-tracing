@@ -130,6 +130,14 @@ inline vec3 unit_vector(vec3 v) {
     return v / v.length();
 }
 
+// For Defocus Blur --> real camera (or eye) approximation, where the rays are collected by a lens (instead of a single point with perfect resolution)
+inline vec3 random_in_unit_disk() { // Using polar coordinates
+    auto r = random_double(0.0, 0.9999);
+    auto theta = random_double(0.0, 2*pi);
+    auto p = vec3(r*cos(theta), r*sin(theta), 0);
+    return p;
+}
+
 // // Using the rejection method
 // inline vec3 random_in_unit_sphere() {
 //     while (true) {
