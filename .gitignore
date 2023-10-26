@@ -13,5 +13,5 @@
 *.ppm
 main
 protocoll.txt
-images
+images/
 outputs/*

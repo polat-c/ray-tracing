@@ -7,6 +7,7 @@
 
 #include <iostream>
 
+using namespace std;
 using color = vec3;
 
 inline double linear_to_gamma(double linear_component) // gamma 2 correction
@@ -14,7 +15,7 @@ inline double linear_to_gamma(double linear_component) // gamma 2 correction
     return sqrt(linear_component);
 }
 
-void write_color(std::ostream &out, color pixel_color, int samples_per_pixel) { // we add samples per pixel for annealing
+void write_color(ostream &out, color pixel_color, int samples_per_pixel) { // we add samples per pixel for annealing
     auto r = pixel_color.x();
     auto g = pixel_color.y();
     auto b = pixel_color.z();
