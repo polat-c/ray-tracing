@@ -182,4 +182,45 @@ inline vec3 refract(const vec3& v, const vec3& n, double etai_over_etat) { // ne
     return r_out_perp + r_out_parallel;
 }
 
+inline point3 rotate3d_x(const point3& p, double theta, bool inverse=false) {
+    // rotation about x-axis
+    double coef1 = cos(theta);
+    double coef2 = sin(theta);
+    if (inverse) {
+        return point3(p.x(), coef1*p.y() + coef2*p.z(), -coef2*p.y() + coef1*p.z());
+    }
+    return point3(p.x(), coef1*p.y() - coef2*p.z(), coef2*p.y() + coef1*p.z());
+}
+
+inline point3 rotate3d_y(const point3& p, double theta, bool inverse=false) {
+    // rotation about y-axis
+    double coef1 = cos(theta);
+    double coef2 = sin(theta);
+    if (inverse) {
+        return point3(coef1*p.x() - coef2*p.z(), p.y(), coef2*p.x() + coef1*p.z());
+    }
+    return point3(coef1*p.x() + coef2*p.z(), p.y(), -coef2*p.x() + coef1*p.z());
+}
+
+inline point3 rotate3d_z(const point3& p, double theta, bool inverse=false) {
+    // rotation about z-axis
+    double coef1 = cos(theta);
+    double coef2 = sin(theta);
+    if (inverse) {
+        return point3(coef1*p.x() + coef2*p.y(), -coef2*p.x() + coef1*p.y(), p.z());
+    }
+    return point3(coef1*p.x() - coef2*p.y(), coef2*p.x() + coef1*p.y(), p.z());
+}
+
+inline point3 rotate3d(const point3& p, double alpha, double beta, double gamma, bool inverse=false, string angles="euler") {
+    // General 3d rotation --> https://en.wikipedia.org/wiki/Rotation_matrix
+    // angles either "euler" (xyz rotation) or "tait-bryan" (zyx rotation)
+    if (angles == "euler") {
+        return rotate3d_z(rotate3d_y(rotate3d_x(p, alpha, inverse), beta, inverse), gamma, inverse);
+    } else if (angles == "tait-bryan") {
+        return rotate3d_z(rotate3d_y(rotate3d_x(p, gamma, inverse), beta, inverse), alpha, inverse);
+    }
+    return point3(0,0,0); // TODO: change this to an error message
+}
+
 #endif

@@ -15,3 +15,4 @@ main
 protocoll.txt
 images/
 outputs/*
+*_test
