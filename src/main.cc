@@ -54,19 +54,19 @@ int main() {
     auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
 
     world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-    world.add(make_shared<sphere>(point3( 0.0,    0.0, -1.0),   0.5, material_center));
-    auto material_metal_cuboid  = make_shared<metal>(color(0.0, 0.125, 1.0), 0.2);
+    world.add(make_shared<sphere>(point3( 0.0,    3.0, -1.0),   0.5, material_center));
+    auto material_metal_cuboid  = make_shared<metal>(color(0.95, 0.95, 0.95), 0.05);
     // ===============================================================================
     // world.add(make_shared<cuboid>(point3(-1.0, 0.0, -1.0), 0.8, 0.8, 0.8, material_metal_cuboid));
     // ===============================================================================
-    world.add(make_shared<cuboid>(point3(-1, 0.0, -1.0), 0.8, 0.8, 0.8, material_metal_cuboid, 
-        pi/4, pi/3, 0, "euler"));
+    world.add(make_shared<cuboid>(point3(-3.0, 3.0, -1.0), 2.5, 2.5, 2.5, material_metal_cuboid, 
+        0, pi/3, pi/6, "euler"));
     // ===============================================================================
     // world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
     // world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),  -0.4, material_left)); // use inverted radius to invert their normals
     // --> thus making a hollow glass sphere, if you combine the above 2 surfaces
     // ===============================================================================
-    world.add(make_shared<sphere>(point3( 1.0,    0.0, -1.0),   0.5, material_right));
+    world.add(make_shared<sphere>(point3( 1.0,    3.0, -1.0),   0.5, material_right));
 
     // CAMERA
     camera cam;
@@ -80,8 +80,8 @@ int main() {
     cam.max_depth = 50;
 
     cam.vfov     = 50;
-    cam.lookfrom = point3(-2,2,1);
-    cam.lookat   = point3(0,0,-1);
+    cam.lookfrom = point3(0,3,4);
+    cam.lookat   = point3(-1,3,-1);
     cam.vup      = vec3(0,1,0);
 
     cam.defocus_angle = 2.0;

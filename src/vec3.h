@@ -216,9 +216,17 @@ inline point3 rotate3d(const point3& p, double alpha, double beta, double gamma,
     // General 3d rotation --> https://en.wikipedia.org/wiki/Rotation_matrix
     // angles either "euler" (xyz rotation) or "tait-bryan" (zyx rotation)
     if (angles == "euler") {
-        return rotate3d_z(rotate3d_y(rotate3d_x(p, alpha, inverse), beta, inverse), gamma, inverse);
+        if (inverse) {
+            return rotate3d_x(rotate3d_y(rotate3d_z(p, gamma, inverse), beta, inverse), alpha, inverse);
+        } else {
+            return rotate3d_z(rotate3d_y(rotate3d_x(p, alpha, inverse), beta, inverse), gamma, inverse);
+        }
     } else if (angles == "tait-bryan") {
-        return rotate3d_z(rotate3d_y(rotate3d_x(p, gamma, inverse), beta, inverse), alpha, inverse);
+        if (inverse) {
+            return rotate3d_x(rotate3d_y(rotate3d_z(p, alpha, inverse), beta, inverse), gamma, inverse);
+        } else {
+            return rotate3d_z(rotate3d_y(rotate3d_x(p, gamma, inverse), beta, inverse), alpha, inverse);
+        }
     }
     return point3(0,0,0); // TODO: change this to an error message
 }
