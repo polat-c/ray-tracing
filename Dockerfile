@@ -19,3 +19,4 @@ RUN git clone -q https://github.com/google/googletest.git /googletest \
   && cmake .. && make && make install
 RUN g++ test/vec3_test.cc /googletest/build/lib/libgtest.a -o vec3_test
 CMD ["/bin/sh", "-c", "./vec3_test"]
+# we are in development
