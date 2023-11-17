@@ -124,7 +124,9 @@ class camera {
             // IMPORTANT: Objects on the focus plane (where the viewport lies) are gonna look focused, since the rays are
             // --> sent directly to them, not mattering where they originate from!
             auto ray_direction = pixel_sample - ray_origin; // ray going from camera to image
-            return ray(ray_origin, ray_direction);
+            double ray_time = random_double(); // our time frame time-interval is [0,1]
+
+            return ray(ray_origin, ray_direction, ray_time);
         }
 
         point3 pixel_sample_square() const {

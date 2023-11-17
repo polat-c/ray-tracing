@@ -14,11 +14,11 @@ class interval {
         interval(double _min, double _max) : min(_min), max(_max) {}
 
         // Functions
-        bool contains(double x) {
+        bool contains(double x) const { // interval cannot be changed with these functions
             return (min <= x) && (x <= max);
         }
 
-        bool surrounds(double x) {
+        bool surrounds(double x) const {
             return (min < x) && (x < max);
         }
 
