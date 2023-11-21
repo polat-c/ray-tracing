@@ -1,8 +1,7 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
-#include "general.h"
-#include "ray.h"
+#include "aabb.h"
 
 class material;
 
@@ -31,6 +30,8 @@ class hittable { // our abstract class
 
         virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
         // this function checks if the ray hits the sphere, if true, it fills out the hit_record
+
+        virtual aabb bounding_box() const = 0;
 };
 
 #endif
