@@ -1,8 +1,7 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
-#include "general.h"
-#include "ray.h"
+#include "aabb.h"
 
 class material;
 
@@ -12,6 +11,8 @@ class hit_record {
         vec3 normal;
         shared_ptr<material> mat;
         double t;
+        double u; // surface coordinates / hit point p is not enough to map it to the texture
+        double v;
         bool front_face; // save the information, if the ray hits the object from the front or the back
 
         void set_face_normal(const ray& r, const vec3& outward_normal) {
@@ -31,6 +32,8 @@ class hittable { // our abstract class
 
         virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
         // this function checks if the ray hits the sphere, if true, it fills out the hit_record
+
+        virtual aabb bounding_box() const = 0;
 };
 
 #endif

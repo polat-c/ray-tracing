@@ -28,6 +28,8 @@ class hittable_list : public hittable { // extends hittable, however we use its 
 
         void add(shared_ptr<hittable> object) {
             objects.push_back(object);
+            bbox = aabb(bbox, object->bounding_box()); // extend the bbox, everytime a new object is added.
+            // gotta use -> operator, since object is a ptr
         }
 
         bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
@@ -49,6 +51,14 @@ class hittable_list : public hittable { // extends hittable, however we use its 
             }
             return hit_anything;
         }
+
+        aabb bounding_box() const override {
+            return bbox;
+        }
+
+    private:
+        aabb bbox;
+
 };
 
 

@@ -10,92 +10,69 @@
 #include "cuboid.h"
 #include "camera.h"
 #include "material.h"
+#include "bvh.h"
+#include "texture.h"
 
 #include <iostream>
 
 using namespace std;
 
-// ======================================================
-// (OUTDATED) --> now these calculations are defined within generic objects
-// double hit_sphere(const point3& center, double radius, const ray& r) { // check if given ray hits a sphere given its center and radius
-//     vec3 oc = r.origin() - center; // r.origin is the camera
-//     auto a = dot(r.direction(), r.direction()); // we basically see if the ray r=A+tb hits the sphere for a t
-//     // --> if we write the equation and solve it for t, we get a quadratic  equation for the defined a, b and c
-//     auto b = 2.0 * dot(oc, r.direction()); // you can simplify these equations by considering half_b
-//     auto c = dot(oc, oc) - radius*radius;
-//     auto discriminant = b*b - 4*a*c;
-//     if (discriminant >= 0) { // we don't care if the ray hits once or twice, since we only care about the first time the ray hits sth
-//         return (-b-sqrt(discriminant)) / (2.0*a);
-//     } else  {
-//         return -1.0; 
-//     }
-// }
-// color ray_color(const ray& r) { // we need to calculate the color at our screen
-//     auto t = hit_sphere(point3(0,0,-1), 0.5, r); // 0.5 radius makes sense, because remember, our focal_length is 1 and viewport_height is 2!
-//     if (t > 0.0) {
-//         vec3 N = unit_vector(r.at(t) - point3(0,0,-1)); // normal is the vector from the center to where the ray hits the sphere
-//         return 0.5*color(N.x()+1, N.y()+1, N.z()+1); // simple normal coloring scheme
-//     }
-//     vec3 unit_direction = unit_vector(r.direction()); // --> vec3 unit_direction = r.direction() / r.direction().length();
-//     auto a = 0.5*(unit_direction.y() + 1.0); // color changes based on the y-coordinate (y is in [-1,1])
-//     return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // color scheme, that creates blue-to-white gradient
-// }
-// ======================================================
-
 // At its core, a ray tracer sends rays through pixels and computes the color seen in the direction of those rays.
-// int main() {
+void main_schene() {
 
-//     // WORLD
-//     hittable_list world;
+    // WORLD
+    hittable_list world;
 
-//     auto material_ground = make_shared<lambertian>(color(0.2, 0.2, 0.2));
-//     auto material_center = make_shared<lambertian>(color(0.0, 0.0, 0.6));
-//     auto material_left   = make_shared<dielectric>(1.5);
-//     auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
+    auto material_ground = make_shared<lambertian>(color(0.2, 0.2, 0.2));
+    auto material_center = make_shared<lambertian>(color(0.0, 0.0, 0.6));
+    auto material_left   = make_shared<dielectric>(1.5);
+    auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
 
-//     world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-//     // world.add(make_shared<sphere>(point3( 0.0,    3.0, -1.0),   0.5, material_center));
-//     world.add(make_shared<cuboid>(point3(0.0, 3.5, -1.0), 0.8, 0.8, 0.8, material_center, 
-//         pi/4, 2*pi/3, pi/6, "euler"));
-//     // ===============================================================================
-//     auto material_metal_cuboid  = make_shared<metal>(color(0.95, 0.95, 0.95), 0.05);
-//     // world.add(make_shared<cuboid>(point3(-1.0, 0.0, -1.0), 0.8, 0.8, 0.8, material_metal_cuboid));
-//     world.add(make_shared<cuboid>(point3(-3.0, 3.0, -1.0), 2.5, 2.5, 2.5, material_metal_cuboid, 
-//         0, pi/3, pi/6, "euler"));
-//     // ===============================================================================
-//     // world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
-//     // world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),  -0.4, material_left)); // use inverted radius to invert their normals
-//     // --> thus making a hollow glass sphere, if you combine the above 2 surfaces
-//     // ===============================================================================
-//     world.add(make_shared<sphere>(point3( 1.0,    2.5, -1.0),   0.5, material_right));
+    // Our world
+    auto checker = make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
+    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(checker)));
+    //world.add(make_shared<sphere>(point3( 0.0, -100.5, -1.0), 100.0, material_ground));
 
-//     // CAMERA
-//     camera cam;
+    // world.add(make_shared<sphere>(point3( 0.0,    3.0, -1.0),   0.5, material_center));
+    world.add(make_shared<cuboid>(point3(0.0, 3.5, -1.0), 0.8, 0.8, 0.8, material_center, 
+        pi/4, 2*pi/3, pi/6, "euler"));
+    // ===============================================================================
+    auto material_metal_cuboid  = make_shared<metal>(color(0.95, 0.95, 0.95), 0.05);
+    // world.add(make_shared<cuboid>(point3(-1.0, 0.0, -1.0), 0.8, 0.8, 0.8, material_metal_cuboid));
+    world.add(make_shared<cuboid>(point3(-3.0, 3.0, -1.0), 2.5, 2.5, 2.5, material_metal_cuboid, 
+        0, pi/3, pi/6, "euler"));
+    // ===============================================================================
+    // world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),   0.5, material_left));
+    // world.add(make_shared<sphere>(point3(-1.0,    0.0, -1.0),  -0.4, material_left)); // use inverted radius to invert their normals
+    // --> thus making a hollow glass sphere, if you combine the above 2 surfaces
+    // ===============================================================================
+    world.add(make_shared<sphere>(point3( 1.0,    2.5, -1.0),   0.5, material_right));
 
-//     cam.aspect_ratio = 16.0 / 9.0;
-//     cam.image_width  = 1200;
-//     //cam.image_width  = 1200;
-//     cam.samples_per_pixel = 100;
-//     // TODO: make it possible to turn off annealing, since it is computationally very expensive 
-//     // --> computes samples_per_pixel ray colors for each pixel! Is there a way to reuse the already calculated values?
-//     cam.max_depth = 50;
+    // make_shared<T> constructs an object of type T and wraps it in a shared_ptr using args as the parameter list for the constructor of T
+    // world = hittable_list(make_shared<bvh_node>(world));
 
-//     cam.vfov     = 50;
-//     cam.lookfrom = point3(0,3.5,4);
-//     cam.lookat   = point3(-1,3,-1);
-//     cam.vup      = vec3(0,1,0);
+    // CAMERA
+    camera cam;
 
-//     cam.defocus_angle = 2.0; 
-//     cam.focus_dist    = 3.4;
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width  = 400; // 1200
+    cam.samples_per_pixel = 100;
+    // TODO: make it possible to turn off annealing, since it is computationally very expensive 
+    // --> computes samples_per_pixel ray colors for each pixel! Is there a way to reuse the already calculated values?
+    cam.max_depth = 50;
 
-//     cam.render(world);
-// }
+    cam.vfov     = 50;
+    cam.lookfrom = point3(0,3.5,4);
+    cam.lookat   = point3(-1,3,-1);
+    cam.vup      = vec3(0,1,0);
 
-// ======================================================
-// =================== FINAL SCENE ======================
-// ======================================================
+    cam.defocus_angle = 2.0; 
+    cam.focus_dist    = 3.4;
 
-int main() {
+    cam.render(world);
+}
+
+void random_spheres() {
     hittable_list world;
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
@@ -140,6 +117,9 @@ int main() {
     auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
+    // it is slower with bvh for some reason?
+    // world = hittable_list(make_shared<bvh_node>(world));
+
     camera cam;
 
     cam.aspect_ratio      = 16.0 / 9.0;
@@ -157,4 +137,71 @@ int main() {
     cam.focus_dist    = 10.0;
 
     cam.render(world);
+}
+
+void two_spheres() {
+    hittable_list world;
+
+    auto checker = make_shared<checker_texture>(0.8, color(.2, .3, .1), color(.9, .9, .9));
+
+    world.add(make_shared<sphere>(point3(0,-10, 0), 10, make_shared<lambertian>(checker)));
+    world.add(make_shared<sphere>(point3(0, 10, 0), 10, make_shared<lambertian>(checker)));
+
+    camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 20;
+    cam.lookfrom = point3(13,2,3);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world);
+}
+
+void earth() {
+    auto earth_texture = make_shared<image_texture>("earthmap.jpg");
+    auto earth_surface = make_shared<lambertian>(earth_texture);
+    auto globe = make_shared<sphere>(point3(0,0,0), 2, earth_surface);
+
+    camera cam;
+
+    cam.aspect_ratio      = 16.0 / 9.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+
+    cam.vfov     = 20;
+    cam.lookfrom = point3(0,0,12);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(hittable_list(globe));
+}
+
+int main() { // Easy switch between schenes
+    switch (4)
+    {
+    case 1:
+        main_schene();
+        break;
+    case 2:
+        random_spheres();
+        break;
+    case 3:
+        two_spheres();
+        break;
+    case 4:
+        earth();
+        break;
+    default:
+        break;
+    }
 }

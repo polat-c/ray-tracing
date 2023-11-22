@@ -4,6 +4,7 @@
 #include "general.h"
 #include "color.h"
 #include "hittable.h"
+#include "texture.h"
 
 class material { // abstract class
 
@@ -22,7 +23,9 @@ class lambertian : public material { // type of surface (calculations based on r
 
     public:
         // Constructors
-        lambertian(const color& a) : albedo(a) {}
+        lambertian(const color& a) : albedo(make_shared<solid_color>(a)) {}
+        
+        lambertian(shared_ptr<texture> a) : albedo(a) {}
 
         // Functions
         bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override { 
@@ -35,12 +38,12 @@ class lambertian : public material { // type of surface (calculations based on r
                 scatter_direction = rec.normal;
 
             scattered = ray(rec.p, scatter_direction, r_in.time());
-            attenuation = albedo;
+            attenuation = albedo->value(rec.u, rec.v, rec.p);
             return true;
         }
 
     private:
-        color albedo;
+        shared_ptr<texture> albedo;
 };
 
 class metal : public material { // reflects ligth with the incoming angle (vec3.reflect)

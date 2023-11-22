@@ -12,6 +12,10 @@ class interval {
         // Constructor
         interval() : min(+infinity), max(-infinity) {} // Default interval is empty
         interval(double _min, double _max) : min(_min), max(_max) {}
+        interval(const interval& a, const interval& b) {
+            min = fmin(a.min, b.min); // float min & max
+            max = fmax(a.max, b.max);
+        }
 
         // Functions
         bool contains(double x) const { // interval cannot be changed with these functions
@@ -26,6 +30,15 @@ class interval {
             if(x < min) return min;
             if(max < x) return max;
             return x;
+        }
+
+        double size() const {
+            return max-min;
+        }
+
+        interval expand(double delta) const {
+            auto padding = delta/2;
+            return interval(min-padding, max+padding);
         }
 
         static const interval empty, universe; // generic intervals
