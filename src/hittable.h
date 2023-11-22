@@ -11,6 +11,8 @@ class hit_record {
         vec3 normal;
         shared_ptr<material> mat;
         double t;
+        double u; // surface coordinates / hit point p is not enough to map it to the texture
+        double v;
         bool front_face; // save the information, if the ray hits the object from the front or the back
 
         void set_face_normal(const ray& r, const vec3& outward_normal) {
