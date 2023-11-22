@@ -1,6 +1,7 @@
 FROM gcc:13.2.0
 
 WORKDIR /ray-tracing
+COPY external/ ./external/
 
 RUN apt-get update
 RUN apt-get -y install cmake
