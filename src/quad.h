@@ -20,7 +20,7 @@ class quad : public hittable { // 2D object defined by base Q, and vectors u & v
         }
 
         // Functions
-        virtual void set_bounding_box() { // abstract method, gotta define specific quads
+        virtual void set_bounding_box() { // abstract method, gotta define for other 2D objects
             bbox = aabb(Q, Q + u + v).pad();
         }
 
@@ -54,7 +54,8 @@ class quad : public hittable { // 2D object defined by base Q, and vectors u & v
         }
 
         virtual bool is_interior(double a, double b, hit_record& rec) const {
-            // --> Only function to change for arbitrary 2D objects --> now it's way easier to implement triagles
+            // --> Only function (apart from set_bounding_box) to change for arbitrary 2D objects 
+            // --> now it's way easier to implement triagles
             // Given the hit point in plane coordinates, return false if it is outside the
             // primitive, otherwise set the hit record UV coordinates and return true.
 

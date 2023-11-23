@@ -13,6 +13,7 @@
 #include "bvh.h"
 #include "texture.h"
 #include "quad.h"
+#include "mesh.h"
 
 #include <iostream>
 
