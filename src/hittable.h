@@ -32,6 +32,7 @@ class hittable { // our abstract class
 
         virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
         // this function checks if the ray hits the sphere, if true, it fills out the hit_record
+        // --> ray_t is not const reference, since it is manipulated in aabb hit function (to simplify the calculations)
 
         virtual aabb bounding_box() const = 0;
 };

@@ -7,6 +7,7 @@
 #include "material.h"
 
 #include <iostream>
+#include <chrono>
 using namespace std;
 
 class camera {
@@ -33,9 +34,12 @@ class camera {
 
             cout << "P3\n" << image_width << " " << image_height << "\n255\n";
 
+            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
             for(int j=0; j<image_height; ++j) {
                 //clog << "\rScanlines remaining: " << (image_height-j) << " " << flush;
-                clog << "\rRendering... " << static_cast<int>(100*(j+1)/image_height) << "% " << flush;
+                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                clog << "\rRendering... " << static_cast<int>(100*(j+1)/image_height) << "% "
+                    << "====== Elapsed Time = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << flush;
                 for(int i=0; i<image_width; ++i) {
                     // color pixel_color = color(double(i)/(image_width-1), double(j)/(image_height-1), 0); // creating an easy image
                     color pixel_color = color(0,0,0); // or simply color pixel_color(0,0,0)
