@@ -17,6 +17,8 @@ class camera {
         int image_width  = 100;  // Rendered image width in pixel count
         int samples_per_pixel = 10; // Count of the random samples for each pixel (for annealing)
         int max_depth = 10;   // Maximum number of ray bounces into scene
+        bool sky = false; // If sky == true, background color is ignored and initial sky implementation is used
+        color background; // Scene background color
 
         double vfov = 90;  // Vertical view angle (field of view), thanks to this, changing the focal_point does not change the image
         point3 lookfrom = point3(0,0,-1); // Point camera is looking from (replaces center)
@@ -39,7 +41,7 @@ class camera {
                 //clog << "\rScanlines remaining: " << (image_height-j) << " " << flush;
                 std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
                 clog << "\rRendering... " << static_cast<int>(100*(j+1)/image_height) << "% "
-                    << "====== Elapsed Time = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << flush;
+                    << "====== Time Elapsed = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << flush;
                 for(int i=0; i<image_width; ++i) {
                     // color pixel_color = color(double(i)/(image_width-1), double(j)/(image_height-1), 0); // creating an easy image
                     color pixel_color = color(0,0,0); // or simply color pixel_color(0,0,0)
@@ -154,19 +156,44 @@ class camera {
             // If we've exceeded the ray bounce limit, no more light is gathered.
             if (depth <= 0) return color(0,0,0); // should be black like the bottom side of objects
 
-            if(world.hit(r, interval(0.001, infinity), rec)) { // solving shadow acne problem by setting min t0 0.001 instead of 0
-                ray scattered;
-                color attenuation;
-                if (rec.mat->scatter(r, rec, attenuation, scattered)) { // this if is important, if scatter is false (this might be false
-                    // --> for metal objects due to fuzzyness), we want the object to absorb all light, making it color(0,0,0)
-                    return attenuation * ray_color(scattered, depth-1, world); // attenuation is a color!
+            // === NEW VERSION ===
+            // If the ray hits nothing, return the background color.
+            if(!world.hit(r, interval(0.001, infinity), rec)) { // solving shadow acne problem by setting min t0 0.001 instead of 0
+                if(sky) {
+                    vec3 unit_direction = unit_vector(r.direction()); // --> vec3 unit_direction = r.direction() / r.direction().length();
+                    auto a = 0.5*(unit_direction.y() + 1.0); // color changes based on the y-coordinate (y is in [-1,1])
+                    return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // color scheme, that creates blue-to-white gradient
                 }
-                return color(0,0,0);
+                return background;
+            }
+                
+            ray scattered;
+            color attenuation;
+            color color_scattered;
+            color color_emitted = rec.mat->emitted(rec.u, rec.v, rec.p); // emitted color is not black, only if rec.mat is a light source
+
+            if (!rec.mat->scatter(r, rec, attenuation, scattered)) { // this if is important, if scatter is false (this might be false
+                // --> for metal objects due to fuzzyness), we want the object to absorb all light, making it color(0,0,0)
+                return color_emitted;
             }
 
-            vec3 unit_direction = unit_vector(r.direction()); // --> vec3 unit_direction = r.direction() / r.direction().length();
-            auto a = 0.5*(unit_direction.y() + 1.0); // color changes based on the y-coordinate (y is in [-1,1])
-            return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // color scheme, that creates blue-to-white gradient
+            color_scattered = attenuation * ray_color(scattered, depth-1, world);
+            return color_emitted + color_scattered;
+            
+            // === OLD VERSION === --> see how this logic is implemented in the new version
+            // if(world.hit(r, interval(0.001, infinity), rec)) { // solving shadow acne problem by setting min t0 0.001 instead of 0
+            //     ray scattered;
+            //     color attenuation;
+            //     if (rec.mat->scatter(r, rec, attenuation, scattered)) { // this if is important, if scatter is false (this might be false
+            //         // --> for metal objects due to fuzzyness), we want the object to absorb all light, making it color(0,0,0)
+            //         return attenuation * ray_color(scattered, depth-1, world); // attenuation is a color!
+            //     }
+            //     return color(0,0,0);
+            // }
+            // vec3 unit_direction = unit_vector(r.direction()); // --> vec3 unit_direction = r.direction() / r.direction().length();
+            // auto a = 0.5*(unit_direction.y() + 1.0); // color changes based on the y-coordinate (y is in [-1,1])
+            // return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // color scheme, that creates blue-to-white gradient
+            // // The background color acts as a light source! --> we are basically backtracing the light reaching our camera
         }
 
 };
