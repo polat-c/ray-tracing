@@ -30,7 +30,7 @@ class perlin {
     // Functions
     double noise(const point3& p) const { // Our main noise generation function
         auto i = static_cast<int>(4*p.x()) & 255; // & is bitwise AND operator
-        auto j = static_cast<int>(4*p.y()) & 255;
+        auto j = static_cast<int>(4*p.y()) & 255; // & 255 will not affect last 8 bits, but turn all leading places to 0
         auto k = static_cast<int>(4*p.z()) & 255;
 
         return ranfloat[perm_x[i] ^ perm_y[j] ^ perm_z[k]]; // ^ is bitwise XOR operator
