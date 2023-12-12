@@ -17,6 +17,8 @@ class material { // abstract class
             color& attenuation,
             ray& scattered
             ) const = 0;
+
+        virtual color emitted(double u, double v, const point3& p) const { return color(0,0,0); }
 };
 
 class lambertian : public material { // type of surface (calculations based on reflectance), we the light scatters everytime for simplicity
@@ -107,6 +109,46 @@ class dielectric : public material { // refracts all light
             r0 = r0*r0;
             return r0 + (1-r0)*pow((1 - cosine),5);
         }
+};
+
+class diffuse_light : public material { // our light-source class
+
+    public:
+        // Constructors
+        diffuse_light(shared_ptr<texture> _emit) : emit(_emit) {}
+        diffuse_light(color c) : emit(make_shared<solid_color>(c)) {}
+
+        // Functions
+        bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override {
+            return false; // light source will not scatter incoming rays, but emit them
+        }
+
+        color emitted(double u, double v, const point3& p) const override {
+            return emit->value(u,v,p);
+        }
+
+    private:
+        shared_ptr<texture> emit;
+
+};
+
+class isotropic : public material {
+    
+    public:
+        // Constructors
+        isotropic(color c) : albedo(make_shared<solid_color>(c)) {}
+        isotropic(shared_ptr<texture> a) : albedo(a) {}
+
+        // Functions
+        bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override {
+            // isotropic material scatters randomly
+            scattered = ray(rec.p, random_unit_vector(), r_in.time());
+            attenuation = albedo->value(rec.u, rec.v, rec.p);
+            return true;
+        } 
+
+    private:
+        shared_ptr<texture> albedo;
 };
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "color.h"
 #include "rt_stb_image.h"
+#include "perlin.h"
 
 class texture { // Abstract class
     public:
@@ -84,6 +85,22 @@ class image_texture : public texture {
 
     private:
         rt_image image;
+
+};
+
+class noise_texture : public texture {
+
+    public:
+        noise_texture() {}
+        // Our perlin noise is defined via static methods
+        // --> doesn't depend on texture parametes, can be called directly
+
+        color value(double u, double v, const point3& p) const override {
+            return color(1,1,1) * noise.noise(p);
+        }
+
+    private:
+        perlin noise; // our noise generator --> class generated upon initialization
 
 };
 
