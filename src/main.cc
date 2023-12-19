@@ -15,6 +15,7 @@
 #include "quad.h"
 #include "mesh.h"
 #include "constant_medium.h"
+#include "mesh_loader.h"
 
 #include <iostream>
 
@@ -253,6 +254,41 @@ void quads() {
     cam.render(world);
 }
 
+void triangles() {
+    hittable_list world;
+
+    // Materials
+    auto left_red     = make_shared<lambertian>(color(1.0, 0.2, 0.2));
+    auto back_green   = make_shared<lambertian>(color(0.2, 1.0, 0.2));
+    auto right_blue   = make_shared<lambertian>(color(0.2, 0.2, 1.0));
+    auto upper_orange = make_shared<lambertian>(color(1.0, 0.5, 0.0));
+    auto lower_teal   = make_shared<lambertian>(color(0.2, 0.8, 0.8));
+
+    // Quads
+    world.add(make_shared<triangle>(point3(-3,-2, 5), vec3(0, 0,-4), vec3(0, 4, 0), left_red));
+    world.add(make_shared<triangle>(point3(-2,-2, 0), vec3(4, 0, 0), vec3(0, 4, 0), back_green));
+    world.add(make_shared<triangle>(point3( 3,-2, 1), vec3(0, 0, 4), vec3(0, 4, 0), right_blue));
+    world.add(make_shared<triangle>(point3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), upper_orange));
+    world.add(make_shared<triangle>(point3(-2,-3, 5), vec3(4, 0, 0), vec3(0, 0,-4), lower_teal));
+
+    camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+    cam.background        = color(0.70, 0.80, 1.00);
+
+    cam.vfov     = 80;
+    cam.lookfrom = point3(0,0,9);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world);
+}
+
 void simple_light() {
     hittable_list world;
 
@@ -378,8 +414,52 @@ void cornell_smoke() {
     cam.render(world);
 }
 
-int main() { // Easy switch between schenes
-    switch (9)
+void mesh_scene() {
+    hittable_list world;
+
+    auto difflight = make_shared<diffuse_light>(color(4,4,4));
+    world.add(make_shared<sphere>(point3(0,5,0), 2, difflight));
+    world.add(make_shared<quad>(point3(4,0,0), vec3(2,0,0), vec3(0,2,0), difflight));
+
+    auto pertext = make_shared<noise_texture>();
+    world.add(make_shared<sphere>(point3(0,-1000,0), 996, make_shared<lambertian>(pertext)));
+
+    // Materials 
+    auto left_red     = make_shared<lambertian>(color(1.0, 0.2, 0.2));
+    // auto back_green   = make_shared<lambertian>(color(0.2, 1.0, 0.2));
+    // auto right_blue   = make_shared<lambertian>(color(0.2, 0.2, 1.0));
+    // auto upper_orange = make_shared<lambertian>(color(1.0, 0.5, 0.0));
+    // auto lower_teal   = make_shared<lambertian>(color(0.2, 0.8, 0.8));
+
+    mesh_loader loader = mesh_loader(left_red);
+    vector<shared_ptr<triangle>> mesh;
+    loader.load("./mesh/Nefertiti.obj", mesh, 1);
+    
+    for (shared_ptr<triangle> mtriangle : mesh) {
+        world.add(mtriangle);
+    }
+
+    camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+    // cam.background        = color(0.70, 0.80, 1.00);
+    cam.background        = color(0.0, 0.0, 0.0);
+
+    cam.vfov     = 70;
+    cam.lookfrom = point3(-5,0,12);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    cam.render(world);
+}
+
+int main() { // Easy switch between scenes
+    switch (11)
     {
     case 1:
         main_schene();
@@ -407,6 +487,10 @@ int main() { // Easy switch between schenes
         break;
     case 9:
         cornell_smoke();
+    case 10:
+        triangles();
+    case 11:
+        mesh_scene();
     default:
         break;
     }
