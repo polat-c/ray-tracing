@@ -142,7 +142,8 @@ void random_spheres() {
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
 
-    cam.render(world);
+    // cam.render(world);
+    cam.display(world);
 }
 
 void two_spheres() {
@@ -431,13 +432,13 @@ void mesh_scene() {
     // auto upper_orange = make_shared<lambertian>(color(1.0, 0.5, 0.0));
     // auto lower_teal   = make_shared<lambertian>(color(0.2, 0.8, 0.8));
 
-    mesh_loader loader = mesh_loader(left_red);
-    vector<shared_ptr<triangle>> mesh;
-    loader.load("./mesh/Nefertiti.obj", mesh, 1);
-    
-    for (shared_ptr<triangle> mtriangle : mesh) {
-        world.add(mtriangle);
-    }
+    // MESH LOGIC
+    mesh_loader loader = mesh_loader();
+    mesh nefertiti_mesh;
+    loader.load("./mesh/Nefertiti.obj", nefertiti_mesh);
+    hittable_list nefertiti_obj;
+    nefertiti_mesh.create_object(nefertiti_obj, left_red, 1);
+    world.add(make_shared<hittable_list>(nefertiti_obj));
 
     camera cam;
 
@@ -455,11 +456,56 @@ void mesh_scene() {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
+    // cam.render(world);
+    cam.display(world);
+}
+
+void mesh_scene_2() {
+    hittable_list world;
+
+    auto difflight = make_shared<diffuse_light>(color(4,4,4));
+    world.add(make_shared<sphere>(point3(0,90,0), 20, difflight));
+    world.add(make_shared<quad>(point3(80,0,0), vec3(40,0,0), vec3(0,40,0), difflight));
+
+    auto pertext = make_shared<noise_texture>();
+    world.add(make_shared<sphere>(point3(0,-1000,0), 940, make_shared<lambertian>(pertext)));
+
+    // Materials 
+    auto left_red     = make_shared<lambertian>(color(1.0, 0.2, 0.2));
+    // auto back_green   = make_shared<lambertian>(color(0.2, 1.0, 0.2));
+    // auto right_blue   = make_shared<lambertian>(color(0.2, 0.2, 1.0));
+    // auto upper_orange = make_shared<lambertian>(color(1.0, 0.5, 0.0));
+    // auto lower_teal   = make_shared<lambertian>(color(0.2, 0.8, 0.8));
+
+    mesh_loader loader = mesh_loader();
+    mesh dragon_mesh;
+    loader.load("./mesh/Nefertiti.obj", dragon_mesh);
+    hittable_list dragon_obj;
+    dragon_mesh.create_object(dragon_obj, left_red, 1);
+    world.add(make_shared<hittable_list>(dragon_obj));
+
+    camera cam;
+
+    cam.aspect_ratio      = 1.0;
+    cam.image_width       = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth         = 50;
+    // cam.background        = color(0.70, 0.80, 1.00);
+    cam.background        = color(0.0, 0.0, 0.0);
+
+    cam.vfov     = 70;
+    cam.lookfrom = point3(-100,0,100);
+    cam.lookat   = point3(0,0,0);
+    cam.vup      = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+
+    // cam.render(world);
+    cam.display(world);
 }
 
 int main() { // Easy switch between scenes
-    switch (11)
+    switch (2)
     {
     case 1:
         main_schene();
@@ -487,10 +533,16 @@ int main() { // Easy switch between scenes
         break;
     case 9:
         cornell_smoke();
+        break;
     case 10:
         triangles();
+        break;
     case 11:
         mesh_scene();
+        break;
+    case 12:
+        mesh_scene_2();
+        break;
     default:
         break;
     }
