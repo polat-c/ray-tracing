@@ -13,6 +13,6 @@
 *.ppm
 main
 protocoll.txt
-images/
+images_local/
 outputs/*
 *_test
