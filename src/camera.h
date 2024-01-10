@@ -53,7 +53,28 @@ class camera {
                 }
             }
             clog << "\nFinished.         \n";
+        }
 
+        void display(const hittable& world) {
+            // Displaying the objects without computation-heavy rendering
+            initialize();
+
+            cout << "P3\n" << image_width << " " << image_height << "\n255\n";
+
+            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+            for(int j=0; j<image_height; ++j) {
+                //clog << "\rScanlines remaining: " << (image_height-j) << " " << flush;
+                std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+                clog << "\rDisplaying... " << static_cast<int>(100*(j+1)/image_height) << "% "
+                    << "====== Time Elapsed = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << flush;
+                for(int i=0; i<image_width; ++i) {
+                    // color pixel_color = color(double(i)/(image_width-1), double(j)/(image_height-1), 0); // creating an easy image
+                    ray r = get_ray(i, j);
+                    color pixel_color = ray_color_display(r, world);
+                    write_color(cout, pixel_color, 1);
+                }
+            }
+            clog << "\nFinished.         \n";
         }
 
     private:
@@ -194,6 +215,30 @@ class camera {
             // auto a = 0.5*(unit_direction.y() + 1.0); // color changes based on the y-coordinate (y is in [-1,1])
             // return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0); // color scheme, that creates blue-to-white gradient
             // // The background color acts as a light source! --> we are basically backtracing the light reaching our camera
+        }
+
+        color ray_color_display(const ray& r, const hittable& world) const {
+            hit_record rec;
+
+            if(!world.hit(r, interval(0.001, infinity), rec)) {
+                // Display sky background
+                vec3 unit_direction = unit_vector(r.direction());
+                auto a = 0.5*(unit_direction.y() + 1.0);
+                return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
+            }
+                
+            ray scattered;
+            color attenuation;
+            color color_scattered;
+            color color_emitted = rec.mat->emitted(rec.u, rec.v, rec.p); // emitted color is not black, only if rec.mat is a light source
+
+            if (!rec.mat->scatter(r, rec, attenuation, scattered)) { // this if is important, if scatter is false (this might be false
+                // --> for metal objects due to fuzzyness), we want the object to absorb all light, making it color(0,0,0)
+                return color_emitted;
+            }
+
+            color_scattered = attenuation * (0.75 + cos(dot(rec.normal, r.direction()))/4.0);
+            return color_emitted + color_scattered;
         }
 
 };
