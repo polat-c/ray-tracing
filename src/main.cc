@@ -581,8 +581,8 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth) {
 
     cam.defocus_angle = 0;
 
-    cam.render(world);
-    // cam.display(world);
+    // cam.render(world);
+    cam.display(world);
 }
 
 int main() { // Easy switch between scenes

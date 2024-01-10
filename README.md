@@ -1,5 +1,7 @@
 # Ray-Tracing
 
+![dragon-mesh](./images/example.png)
+
 This repo is the implementation & extension of the following wonderful tutorials on ray-tracing:
 - [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
 - [_Ray Tracing: The Next Week_](https://raytracing.github.io/books/RayTracingTheNextWeek.html)
@@ -8,8 +10,19 @@ Apart from following the tutorials, following extensions were made:
 - Dockerizing the pipelines: addition of build & development dockerfiles, more info under [1) Setup](#1-setup)
 - Addition of testing with GoogleTest
 - Implementation of custom cuboid class (arbitrary rotations defined by euler angles)
-- Addition of mesh .obj files, defined by an array of triangular meshes
-- Custom camera->display function to display scenes without performing compute-heavy rendering
+- Addition of mesh .obj files, defined by an array of triangular meshes, such as the following nefertiti mask:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="./images/nefertiti.png" alt="drawing" width="200"/>
+
+- Custom camera->display function to display scenes without performing compute-heavy rendering:
+
+Rendered Image             |  Displayed Image
+:-------------------------:|:-------------------------:
+<img src="./images/image_render.png" alt="drawing" width="200">  |  <img src="./images/image_display.png" alt="drawing" width="200"/>
+
+Rendering took a little more than 2.5 hours, whereas the displaying took around 7 minutes on my personal machine.
 
 ## 1) Setup
 
