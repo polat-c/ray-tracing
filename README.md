@@ -6,7 +6,7 @@ This repo is the implementation & extension of the following wonderful tutorials
 - [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
 - [_Ray Tracing: The Next Week_](https://raytracing.github.io/books/RayTracingTheNextWeek.html)
 
-Apart from following the tutorials, following extensions were made:
+Apart from the tutorials, following extensions were made:
 - Dockerizing the pipelines: addition of build & development dockerfiles, more info under [1) Setup](#1-setup)
 - Addition of testing with GoogleTest
 - Implementation of custom cuboid class (arbitrary rotations defined by euler angles)
